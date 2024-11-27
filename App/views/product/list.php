@@ -2,7 +2,7 @@
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="text-primary">Danh Sách Sản Phẩm</h1>
-        <a href="/lab_1/Product/add" class="btn btn-success">Thêm Sản Phẩm Mới</a>
+        <a href="/s4_php/Product/add" class="btn btn-success">Thêm Sản Phẩm Mới</a>
     </div>
 
     <div class="row">
@@ -11,12 +11,12 @@
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
                         <h5 class="card-title text-truncate">
-                            <a href="/lab_1/Product/show/<?php echo $product->id; ?>" class="text-decoration-none text-dark">
+                            <a href="/s4_php/Product/show/<?php echo $product->id; ?>" class="text-decoration-none text-dark">
                                 <?php echo htmlspecialchars($product->name, ENT_QUOTES, 'UTF-8'); ?>
                             </a>
                         </h5>
                         <?php if ($product->image): ?>
-                            <img src="/lab_1/<?php echo $product->image; ?>" alt="Product Image" style="max-width: 50px;">
+                            <img src="/s4_php/<?php echo $product->image; ?>" alt="Product Image" style="max-width: 50px;">
                         <?php endif; ?>
                         <p class="card-text text-muted small text-truncate">
                             <?php echo htmlspecialchars($product->description, ENT_QUOTES, 'UTF-8'); ?>
@@ -25,13 +25,13 @@
                             Giá: <?php echo htmlspecialchars($product->price, ENT_QUOTES, 'UTF-8'); ?>₫
                         </p>
                         <div class="d-flex justify-content-between">
-                            <a href="/lab_1/Product/edit/<?php echo $product->id; ?>" class="btn btn-warning btn-sm">Sửa</a>
-                            <a href="/lab_1/Product/delete/<?php echo $product->id; ?>"
+                            <a href="/s4_php/Product/edit/<?php echo $product->id; ?>" class="btn btn-warning btn-sm">Sửa</a>
+                            <a href="/s4_php/Product/delete/<?php echo $product->id; ?>"
                                 class="btn btn-danger btn-sm"
                                 onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
                                 Xóa
                             </a>
-                            <a href="/lab_1/Product/addToCart/<?php echo $product->id; ?>" class="btn btn-primary btn-sm">Thêm giỏ hàng</a>
+                            <a href="/s4_php/Product/addToFavorites/<?php echo $product->id; ?>" class="btn btn-primary btn-sm">Thích</a>
                         </div>
                     </div>
                 </div>

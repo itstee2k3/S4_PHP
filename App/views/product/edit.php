@@ -14,7 +14,7 @@
         </div>
     <?php endif; ?>
 
-    <form method="POST" action="/lab_1/Product/update" enctype="multipart/form-data" onsubmit="return validateForm();">
+    <form method="POST" action="/s4_php/Product/update" enctype="multipart/form-data" onsubmit="return validateForm();">
         <input type="hidden" name="id" value="<?php echo $product->id; ?>">
 
         <div class="mb-3">
@@ -50,12 +50,12 @@
             <input type="file" id="image" name="image" class="form-control">
             <input type="hidden" name="existing_image" value="<?php echo $product->image; ?>">
             <?php if ($product->image): ?>
-                <img src="/lab_1/<?php echo $product->image; ?>" alt="Product Image" style="maxwidth: 100px;">
+                <img src="/s4_php/<?php echo $product->image; ?>" alt="Product Image" style="maxwidth: 100px;">
             <?php endif; ?>
         </div>
 
         <button type="submit" class="btn btn-primary">Lưu Thay Đổi</button>
-        <a href="/lab_1/Product/index" class="btn btn-secondary ms-2">Quay Lại</a>
+        <a href="/s4_php/Product/index" class="btn btn-secondary ms-2">Quay Lại</a>
     </form>
 </div>
 <?php include 'app/views/shares/footer.php'; ?>

@@ -11,7 +11,7 @@
     </div>
 <?php endif; ?>
 
-<form method="POST" action="/lab_1/Product/save" enctype="multipart/form-data" onsubmit="return validateForm();">
+<form method="POST" action="/s4_php/Product/save" enctype="multipart/form-data" onsubmit="return validateForm();">
     <div class="form-group">
         <label for="name">Tên sản phẩm:</label>
         <input type="text" id="name" name="name" class="form-control" required>
@@ -41,6 +41,6 @@
     </div>
     <button type="submit" class="btn btn-primary">Thêm sản phẩm</button>
 </form>
-<a href="/lab_1/Product/list" class="btn btn-secondary mt-2">Quay lại danh sách
+<a href="/s4_php/Product/list" class="btn btn-secondary mt-2">Quay lại danh sách
     sản phẩm</a>
 <?php include 'app/views/shares/footer.php'; ?>

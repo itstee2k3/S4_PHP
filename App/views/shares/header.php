@@ -19,10 +19,10 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="/lab_1/Product/">Danh sách sản phẩm</a>
+                    <a class="nav-link" href="/s4_php/Product/">Danh sách sản phẩm</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/lab_1/Product/add">Thêm sản phẩm</a>
+                    <a class="nav-link" href="/s4_php/Product/add">Thêm sản phẩm</a>
                 </li>
             </ul>
         </div>
