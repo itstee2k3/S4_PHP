@@ -1,17 +1,11 @@
 <?php include 'app/views/shares/header.php'; ?>
 <h1>Thêm sản phẩm mới</h1>
 
-<?php if (!empty($errors)): ?>
-    <div class="alert alert-danger">
-        <ul>
-            <?php foreach ($errors as $error): ?>
-                <li><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
-<?php endif; ?>
+<?php
+var_dump($errors);
+?>
 
-<form method="POST" action="/s4_php/Product/save" enctype="multipart/form-data" onsubmit="return validateForm();">
+<form method="POST" action="/demo1/Product/save" enctype="multipart/form-data">
     <div class="form-group">
         <label for="name">Tên sản phẩm:</label>
         <input type="text" id="name" name="name" class="form-control" required>
@@ -20,11 +14,6 @@
         <label for="description">Mô tả:</label>
         <textarea id="description" name="description" class="form-control"
             required></textarea>
-    </div>
-    <div class="form-group">
-        <label for="price">Giá:</label>
-        <input type="number" id="price" name="price" class="form-control" step="0.01"
-            required>
     </div>
     <div class="form-group">
         <label for="category_id">Danh mục:</label>

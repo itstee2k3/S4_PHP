@@ -47,7 +47,7 @@ class ProductController
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = $_POST['name'] ?? '';
             $description = $_POST['description'] ?? '';
-            $price = $_POST['price'] ?? '';
+           
             $category_id = $_POST['category_id'] ?? null;
 
             $errors = []; // Mảng lưu trữ lỗi
@@ -60,11 +60,11 @@ class ProductController
                     $image = "";
                 }
 
+
                 // Thêm sản phẩm vào database
                 $result = $this->productModel->addProduct(
                     $name,
                     $description,
-                    $price,
                     $category_id,
                     $image
                 );
@@ -72,10 +72,12 @@ class ProductController
                 if (is_array($result)) {
                     $errors = array_merge($errors, $result); // Ghép lỗi từ model
                 } else {
-                    header('Location: /s4_php/Product');
+                    header('Location: /demo1/Product');
                     exit;
                 }
             } catch (Exception $e) {
+            
+
                 // Ghi nhận lỗi trong quá trình upload ảnh
                 $errors[] = $e->getMessage();
             }

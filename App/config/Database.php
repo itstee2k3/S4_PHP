@@ -8,9 +8,9 @@ use PDOException;
 class Database
 {
     private $host = "localhost";
-    private $db_name = "webbanhang";
+    private $db_name = "hutechshop";
     private $username = "root";
-    private $password = "root";
+    private $password = "";
     public $conn;
     public function getConnection()
     {

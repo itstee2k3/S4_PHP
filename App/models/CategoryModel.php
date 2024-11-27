@@ -12,7 +12,7 @@ class CategoryModel{
     }
     public function getCategories()
     {
-    $query = "SELECT id, name, description FROM " . $this->table_name;
+    $query = "SELECT id, name FROM " . $this->table_name;
     $stmt = $this->conn->prepare($query);
     $stmt->execute();
     $result = $stmt->fetchAll(PDO::FETCH_OBJ);

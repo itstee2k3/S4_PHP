@@ -18,9 +18,9 @@ class ProductModel
 
     public function getProducts()
     {
-        $query = "SELECT p.id, p.name, p.description, p.price, p.image,  c.name as category_name 
+        $query = "SELECT p.id, p.title, p.description, p.image, c.name as category_name 
           FROM " . $this->table_name . " AS p 
-          LEFT JOIN category AS c ON p.category_id = c.id";
+          LEFT JOIN category AS c ON p.categoryid = c.id";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
@@ -36,7 +36,7 @@ class ProductModel
         $result = $stmt->fetch(PDO::FETCH_OBJ);
         return $result;
     }
-    public function addProduct($name, $description, $price, $category_id,$image)
+    public function addProduct($name, $description, $category_id, $image)
     {
 
         $errors = [];
@@ -46,25 +46,20 @@ class ProductModel
         if (empty($description)) {
             $errors['description'] = 'Mô tả không được để trống';
         }
-        if (!is_numeric($price) || $price < 0) {
-            $errors['price'] = 'Giá sản phẩm không hợp lệ';
-        }
         if (count($errors) > 0) {
             return $errors;
         }
 
 
-        $query = "INSERT INTO " . $this->table_name . " (name, description, price,
-        category_id,image) VALUES (:name, :description, :price, :category_id, :image)";
+        $query = "INSERT INTO " . $this->table_name . " (title, description,
+        categoryid, image) VALUES (:name, :description, :categoryid, :image)";
         $stmt = $this->conn->prepare($query);
         $name = htmlspecialchars(strip_tags($name));
         $description = htmlspecialchars(strip_tags($description));
-        $price = htmlspecialchars(strip_tags($price));
         $category_id = htmlspecialchars(strip_tags($category_id));
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':description', $description);
-        $stmt->bindParam(':price', $price);
-        $stmt->bindParam(':category_id', $category_id);
+        $stmt->bindParam(':categoryid', $category_id);
         $stmt->bindParam(':image', $image);
 
         if ($stmt->execute()) {
