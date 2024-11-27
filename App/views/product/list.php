@@ -4,7 +4,6 @@
         <h1 class="text-primary">Danh Sách Sản Phẩm</h1>
         <a href="/demo1/Product/add" class="btn btn-success">Thêm Sản Phẩm Mới</a>
     </div>
-
     <div class="row">
         <?php foreach ($products as $product): ?>
             <div class="col-md-4 mb-4">

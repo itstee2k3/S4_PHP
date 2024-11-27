@@ -47,7 +47,7 @@ class ProductController
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = $_POST['name'] ?? '';
             $description = $_POST['description'] ?? '';
-           
+
             $category_id = $_POST['category_id'] ?? null;
 
             $errors = []; // Mảng lưu trữ lỗi
@@ -76,7 +76,7 @@ class ProductController
                     exit;
                 }
             } catch (Exception $e) {
-            
+
 
                 // Ghi nhận lỗi trong quá trình upload ảnh
                 $errors[] = $e->getMessage();
@@ -173,6 +173,28 @@ class ProductController
         return $target_file;
     }
 
+    // public function addToFavorites($id)
+    // {
+    //     $product = $this->productModel->getProductById($id);
+    //     if (!$product) {
+    //         echo "Không tìm thấy sản phẩm.";
+    //         return;
+    //     }
+    //     if (!isset($_SESSION['favorites'])) {
+    //         $_SESSION['favorites'] = [];
+    //     }
+    //     if (!isset($_SESSION['favorites'][$id])) {
+    //         // Thêm sản phẩm vào danh sách yêu thích
+    //         $_SESSION['favorites'][$id] = [
+    //             'name' => $product->name,
+    //             'price' => $product->price,
+    //             'image' => $product->image
+    //         ];
+    //     }
+    //     // Chuyển hướng đến trang danh sách yêu thích
+    //     header('Location: /s4_php/Product/favorites');
+    // }
+
     public function addToFavorites($id)
     {
         $product = $this->productModel->getProductById($id);
@@ -180,29 +202,44 @@ class ProductController
             echo "Không tìm thấy sản phẩm.";
             return;
         }
-        if (!isset($_SESSION['favorites'])) {
-            $_SESSION['favorites'] = [];
-        }
-        if (!isset($_SESSION['favorites'][$id])) {
+
+        // Lấy danh sách yêu thích từ cookie
+        $favorites = isset($_COOKIE['favorites']) ? json_decode($_COOKIE['favorites'], true) : [];
+
+        // Kiểm tra xem sản phẩm đã tồn tại trong danh sách yêu thích chưa
+        if (!isset($favorites[$id])) {
             // Thêm sản phẩm vào danh sách yêu thích
-            $_SESSION['favorites'][$id] = [
-                'name' => $product->name,
-                'price' => $product->price,
-                'image' => $product->image
+            $favorites[$id] = [
+                'name' => $product->title
             ];
+
+            // Lưu danh sách yêu thích vào cookie (30 ngày)
+            setcookie('favorites', json_encode($favorites), time() + (30 * 24 * 60 * 60), '/');
         }
+
         // Chuyển hướng đến trang danh sách yêu thích
-        header('Location: /s4_php/Product/favorites');
+        header('Location: /demo1/Product/favorites');
     }
 
     public function favorites()
     {
-        // Kiểm tra và xóa sản phẩm quá hạn 30 ngày
-         $this->checkFavoritesExpiration();
-        // Lấy danh sách yêu thích từ session
-        $favorites = isset($_SESSION['favorites']) ? $_SESSION['favorites'] : [];
+        // Lấy danh sách yêu thích từ cookie
+        $favorites = isset($_COOKIE['favorites']) ? json_decode($_COOKIE['favorites'], true) : [];
+
+        // Bao gồm tệp view để hiển thị danh sách yêu thích
         include 'app/views/product/favorites.php';
     }
+
+
+
+    // public function favorites()
+    // {
+    //     // Kiểm tra và xóa sản phẩm quá hạn 30 ngày
+    //     $this->checkFavoritesExpiration();
+    //     // Lấy danh sách yêu thích từ session
+    //     $favorites = isset($_SESSION['favorites']) ? $_SESSION['favorites'] : [];
+    //     include 'app/views/product/favorites.php';
+    // }
     public function removeFromFavorites($id)
     {
         if (isset($_SESSION['favorites'][$id])) {
