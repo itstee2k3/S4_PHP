@@ -1,33 +1,32 @@
 <?php
-
-namespace App\Models;
-
-use PDO;
-
-class ProductModel
+class productModel
 {
-
     private $conn;
-    private $table_name = "product";
-
+    private $table_name = "products";
     public function __construct($db)
     {
         $this->conn = $db;
     }
 
-
-    public function getProducts()
+    public function getproducts()
     {
-        $query = "SELECT p.id, p.title, p.description, p.image, c.name as category_name 
-          FROM " . $this->table_name . " AS p 
-          LEFT JOIN category AS c ON p.categoryid = c.id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute();
-        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
-        return $result;
+        try {
+            $query = "SELECT p.id, p.name, p.description, p.price, p.image, c.name as category_name FROM " . $this->table_name . " p LEFT JOIN categories c ON p.category_id = c.id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+            // Debug: Kiểm tra kết quả trả về
+            // echo '<pre>';
+            // print_r($result);
+            // echo '</pre>';
+            return $result;
+        } catch (Exception $e) {
+            echo 'Lỗi khi lấy sản phẩm: ' . $e->getMessage();
+        }
     }
+    
 
-    public function getProductById($id)
+    public function getproductById($id)
     {
         $query = "SELECT * FROM " . $this->table_name . " WHERE id = :id";
         $stmt = $this->conn->prepare($query);
@@ -36,9 +35,10 @@ class ProductModel
         $result = $stmt->fetch(PDO::FETCH_OBJ);
         return $result;
     }
-    public function addProduct($name, $description, $category_id, $image)
-    {
 
+
+    public function addproduct($name, $description, $price, $category_id, $image)
+    {
         $errors = [];
         if (empty($name)) {
             $errors['name'] = 'Tên sản phẩm không được để trống';
@@ -46,39 +46,43 @@ class ProductModel
         if (empty($description)) {
             $errors['description'] = 'Mô tả không được để trống';
         }
+        if (!is_numeric($price) || $price < 0) {
+            $errors['price'] = 'Giá sản phẩm không hợp lệ';
+        }
         if (count($errors) > 0) {
             return $errors;
         }
-
-
-        $query = "INSERT INTO " . $this->table_name . " (title, description,
-        categoryid, image) VALUES (:name, :description, :categoryid, :image)";
-        $stmt = $this->conn->prepare($query);
-        $name = htmlspecialchars(strip_tags($name));
-        $description = htmlspecialchars(strip_tags($description));
-        $category_id = htmlspecialchars(strip_tags($category_id));
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':description', $description);
-        $stmt->bindParam(':categoryid', $category_id);
-        $stmt->bindParam(':image', $image);
-
-        if ($stmt->execute()) {
-            return true;
-        }
-        return false;
-    }
-
-
-    public function updateProduct($id, $name, $description, $price, $category_id, $image)
-    {
-
-        $query = "UPDATE " . $this->table_name . " SET name=:name,
-        description=:description, price=:price, category_id=:category_id, image=:image WHERE id=:id";
+        $query = "INSERT INTO " . $this->table_name . " (name, description, price, category_id, image) VALUES (:name, :description, :price, :category_id, :image)";
         $stmt = $this->conn->prepare($query);
         $name = htmlspecialchars(strip_tags($name));
         $description = htmlspecialchars(strip_tags($description));
         $price = htmlspecialchars(strip_tags($price));
         $category_id = htmlspecialchars(strip_tags($category_id));
+        $image = htmlspecialchars(strip_tags($image));
+        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':price', $price);
+        $stmt->bindParam(':category_id', $category_id);
+        $stmt->bindParam(':image', $image);
+        if ($stmt->execute()) {
+            $productId = $this->conn->lastInsertId(); // Lấy ID sản phẩm mới tạo
+            if (!$productId) {
+                return ['error' => 'Không thể lấy ID sản phẩm mới.'];
+            }
+            return ['id' => $productId]; // Trả về ID nếu thành công
+        }
+        return ['error' => 'Không thể thêm sản phẩm'];
+    }
+
+    public function updateproduct($id, $name, $description, $price, $category_id, $image) 
+    {
+        $query = "UPDATE " . $this->table_name . " SET name=:name, description=:description, price=:price, category_id=:category_id, image=:image WHERE id=:id";
+        $stmt = $this->conn->prepare($query);
+        $name = htmlspecialchars(strip_tags($name));
+        $description = htmlspecialchars(strip_tags($description));
+        $price = htmlspecialchars(strip_tags($price));
+        $category_id = htmlspecialchars(strip_tags($category_id));
+        $image = htmlspecialchars(strip_tags($image));
         $stmt->bindParam(':id', $id);
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':description', $description);
@@ -86,13 +90,13 @@ class ProductModel
         $stmt->bindParam(':category_id', $category_id);
         $stmt->bindParam(':image', $image);
         if ($stmt->execute()) {
-            return true;
+            return ['id' => $id]; // Trả về ID nếu thành công
         }
-        return false;
+        return ['id_error' => 'Không thể tạo ID cho sản phẩm mới.'];
     }
 
 
-    public function deleteProduct($id)
+    public function deleteproduct($id)
     {
         $query = "DELETE FROM " . $this->table_name . " WHERE id=:id";
         $stmt = $this->conn->prepare($query);
@@ -102,4 +106,8 @@ class ProductModel
         }
         return false;
     }
+
+
+
+    
 }

@@ -1,36 +1,30 @@
 <?php
-
-namespace App\Controllers;
-
-use App\Models\ProductModel;
-use App\Models\CategoryModel;
-use App\Config\Database;
-use Exception;
-
-
-class ProductController
+// Require SessionHelper and other necessary files
+require_once('app/config/database.php');
+require_once('app/models/ProductModel.php');
+require_once('app/models/CategoryModel.php');
+class productController
 {
-    private $db;
     private $productModel;
-
+    private $db;
     public function __construct()
     {
         $this->db = (new Database())->getConnection();
-        $this->productModel = new ProductModel($this->db);
+        $this->productModel = new productModel($this->db);
     }
 
-
-    public function index()
+    public function index(): void
     {
-        $products = $this->productModel->getProducts();
+        // echo 'This is the product index page'; // Debug message
+        $products = $this->productModel->getproducts();
         include 'app/views/product/list.php';
     }
 
     public function show($id)
     {
-        $product = $this->productModel->getProductById($id);
+        $product = $this->productModel->getproductById($id);
         if ($product) {
-            include 'app/views/product/edit.php';
+            include 'app/views/product/show.php';
         } else {
             echo "Không thấy sản phẩm.";
         }
@@ -47,51 +41,58 @@ class ProductController
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = $_POST['name'] ?? '';
             $description = $_POST['description'] ?? '';
-
+            $price = $_POST['price'] ?? '';
             $category_id = $_POST['category_id'] ?? null;
+            $image = "";
 
-            $errors = []; // Mảng lưu trữ lỗi
-
-            try {
-                // Kiểm tra và upload ảnh
-                if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-                    $image = $this->uploadImage($_FILES['image']);
-                } else {
-                    $image = "";
+            $product = $this->productModel->addproduct($name, $description, $price, $category_id, image: $image);
+            if (isset($product['error'])) {
+                $errors[] = $product['error']; // Nếu có lỗi khi thêm sản phẩm
+                $categories = (new CategoryModel($this->db))->getCategories();
+                include 'app/views/product/add.php';
+                return;
+            } else {
+                $productId = $product['id'];
+                if (!$productId) {
+                    $errors[] = 'Không thể tạo ID cho sản phẩm. Vui lòng thử lại.';
                 }
-
-
-                // Thêm sản phẩm vào database
-                $result = $this->productModel->addProduct(
-                    $name,
-                    $description,
-                    $category_id,
-                    $image
-                );
-
-                if (is_array($result)) {
-                    $errors = array_merge($errors, $result); // Ghép lỗi từ model
-                } else {
-                    header('Location: /demo1/Product');
-                    exit;
-                }
-            } catch (Exception $e) {
-
-
-                // Ghi nhận lỗi trong quá trình upload ảnh
-                $errors[] = $e->getMessage();
             }
 
-            // Lấy danh mục và hiển thị view cùng lỗi
-            $categories = (new CategoryModel($this->db))->getCategories();
-            include 'app/views/product/add.php';
+            if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+                try {
+                    $image = $this->uploadImage($_FILES['image'], $productId);
+                    $this->productModel->updateproduct($productId, $name, $description, $price, $category_id, $image);
+                } catch (Exception $e) {
+                    $errors[] = $e->getMessage();
+                }
+            }
+            // Chuyển hướng sau khi lưu
+            if (empty($errors)) {
+                header('Location: /s4_php/product');
+                exit;
+            } else {
+                $categories = (new CategoryModel($this->db))->getCategories();
+                include 'app/views/product/add.php';
+            }
+            // if (is_array($product)) {
+            //     // $errors = $product;
+            //     if (isset($product['id_error'])) {
+            //         $errors = ['Không thể tạo ID cho sản phẩm mới.']; // Hoặc lỗi cụ thể về ID
+            //     } else {
+            //         $errors = $product; // Lỗi khác (ví dụ: không thể thêm sản phẩm)
+            //     }
+            //     $categories = (new CategoryModel($this->db))->getCategories();
+            //     include 'app/views/product/add.php';
+            // } else {
+            //     header('Location: /s4_php/product');
+            // }
         }
     }
 
 
     public function edit($id)
     {
-        $product = $this->productModel->getProductById($id);
+        $product = $this->productModel->getproductById($id);
         $categories = (new CategoryModel($this->db))->getCategories();
         if ($product) {
             include 'app/views/product/edit.php';
@@ -99,7 +100,6 @@ class ProductController
             echo "Không thấy sản phẩm.";
         }
     }
-
     public function update()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -108,14 +108,18 @@ class ProductController
             $description = $_POST['description'];
             $price = $_POST['price'];
             $category_id = $_POST['category_id'];
+            $existingImage = $_POST['existing_image'];
 
             if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-                $image = $this->uploadImage($_FILES['image']);
+                $image = $this->uploadImage($_FILES['image'], $id);
+                
+                if ($existingImage && file_exists("public/images/" . $existingImage)) {
+                    unlink("public/images/" . $existingImage);  // Xóa ảnh cũ
+                }
             } else {
-                $image = $_POST['existing_image'];
+                $image = $existingImage;
             }
-
-            $edit = $this->productModel->updateProduct(
+            $edit = $this->productModel->updateproduct(
                 $id,
                 $name,
                 $description,
@@ -123,9 +127,8 @@ class ProductController
                 $category_id,
                 $image
             );
-
             if ($edit) {
-                header('Location: /s4_php/Product');
+                header('Location: /s4_php/product');
             } else {
                 echo "Đã xảy ra lỗi khi lưu sản phẩm.";
             }
@@ -134,135 +137,66 @@ class ProductController
 
     public function delete($id)
     {
-        if ($this->productModel->deleteProduct($id)) {
-            header('Location: /s4_php/Product');
+        if ($this->productModel->deleteproduct($id)) {
+            header('Location: /s4_php/product');
         } else {
             echo "Đã xảy ra lỗi khi xóa sản phẩm.";
         }
     }
 
-    private function uploadImage($file)
+
+    private function uploadImage($file, $productId)
     {
-        $target_dir = "public/images/";
-        // Kiểm tra và tạo thư mục nếu chưa tồn tại
+        $baseDir = realpath(__DIR__ . "/../../");
+
+        $target_dir = $baseDir . "/public/images/";
+
         if (!is_dir($target_dir)) {
-            mkdir($target_dir, 0777, true);
+            if (!mkdir($target_dir, 0777, true)) {
+                throw new Exception("Không thể tạo thư mục tải lên: $target_dir. Kiểm tra quyền.");
+            }
         }
-        $target_file = $target_dir . basename($file["name"]);
+
+         // Nếu có ID sản phẩm, dùng ID để đặt tên ảnh
+        if ($productId) {
+            // Tạo tên file theo ID sản phẩm (ví dụ: 123.jpg)
+            $filename = "product-" . $productId . '.' . strtolower(pathinfo($file["name"], PATHINFO_EXTENSION));
+        } else {
+            // Nếu không có ID, chỉ sử dụng tên gốc (hoặc có thể thay đổi tên theo nhu cầu)
+            $filename = basename($file["name"]);
+        }
+
+        // $filename = basename($file["name"]);
+        $target_file = $target_dir . $filename;
         $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
         // Kiểm tra xem file có phải là hình ảnh không
         $check = getimagesize($file["tmp_name"]);
+        var_dump($file["tmp_name"]);
+
         if ($check === false) {
             throw new Exception("File không phải là hình ảnh.");
         }
+
         // Kiểm tra kích thước file (10 MB = 10 * 1024 * 1024 bytes)
         if ($file["size"] > 10 * 1024 * 1024) {
             throw new Exception("Hình ảnh có kích thước quá lớn.");
         }
+
         // Chỉ cho phép một số định dạng hình ảnh nhất định
-        if (
-            $imageFileType != "jpg" && $imageFileType != "png" && $imageFileType !=
-            "jpeg" && $imageFileType != "gif"
-        ) {
+        if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif") {
             throw new Exception("Chỉ cho phép các định dạng JPG, JPEG, PNG và GIF.");
         }
-        // Lưu file
+        var_dump($file["tmp_name"]);
+
+        // luu file
+        var_dump($target_file); // Kiểm tra đường dẫn lưu trữ
         if (!move_uploaded_file($file["tmp_name"], $target_file)) {
-            throw new Exception("Có lỗi xảy ra khi tải lên hình ảnh.");
+            $error = error_get_last();
+            error_log("File upload failed: " . print_r($error, true)); // Ghi lỗi vào log
+            throw new Exception(message: "Có lỗi xảy ra khi tải lên hình ảnh.");
         }
-        return $target_file;
+        return $filename;
     }
 
-    // public function addToFavorites($id)
-    // {
-    //     $product = $this->productModel->getProductById($id);
-    //     if (!$product) {
-    //         echo "Không tìm thấy sản phẩm.";
-    //         return;
-    //     }
-    //     if (!isset($_SESSION['favorites'])) {
-    //         $_SESSION['favorites'] = [];
-    //     }
-    //     if (!isset($_SESSION['favorites'][$id])) {
-    //         // Thêm sản phẩm vào danh sách yêu thích
-    //         $_SESSION['favorites'][$id] = [
-    //             'name' => $product->name,
-    //             'price' => $product->price,
-    //             'image' => $product->image
-    //         ];
-    //     }
-    //     // Chuyển hướng đến trang danh sách yêu thích
-    //     header('Location: /s4_php/Product/favorites');
-    // }
-
-    public function addToFavorites($id)
-    {
-        $product = $this->productModel->getProductById($id);
-        if (!$product) {
-            echo "Không tìm thấy sản phẩm.";
-            return;
-        }
-
-        // Lấy danh sách yêu thích từ cookie
-        $favorites = isset($_COOKIE['favorites']) ? json_decode($_COOKIE['favorites'], true) : [];
-
-        // Kiểm tra xem sản phẩm đã tồn tại trong danh sách yêu thích chưa
-        if (!isset($favorites[$id])) {
-            // Thêm sản phẩm vào danh sách yêu thích
-            $favorites[$id] = [
-                'name' => $product->title
-            ];
-
-            // Lưu danh sách yêu thích vào cookie (30 ngày)
-            setcookie('favorites', json_encode($favorites), time() + (30 * 24 * 60 * 60), '/');
-        }
-
-        // Chuyển hướng đến trang danh sách yêu thích
-        header('Location: /demo1/Product/favorites');
-    }
-
-    public function favorites()
-    {
-        // Lấy danh sách yêu thích từ cookie
-        $favorites = isset($_COOKIE['favorites']) ? json_decode($_COOKIE['favorites'], true) : [];
-
-        // Bao gồm tệp view để hiển thị danh sách yêu thích
-        include 'app/views/product/favorites.php';
-    }
-
-
-
-    // public function favorites()
-    // {
-    //     // Kiểm tra và xóa sản phẩm quá hạn 30 ngày
-    //     $this->checkFavoritesExpiration();
-    //     // Lấy danh sách yêu thích từ session
-    //     $favorites = isset($_SESSION['favorites']) ? $_SESSION['favorites'] : [];
-    //     include 'app/views/product/favorites.php';
-    // }
-    public function removeFromFavorites($id)
-    {
-        if (isset($_SESSION['favorites'][$id])) {
-            // Xóa sản phẩm khỏi danh sách yêu thích
-            unset($_SESSION['favorites'][$id]);
-        }
-        // Chuyển hướng về trang danh sách yêu thích
-        header('Location: /s4_php/Product/favorites');
-    }
-
-    public function checkFavoritesExpiration()
-    {
-        if (isset($_SESSION['favorites'])) {
-            $current_time = time(); // Lấy thời gian hiện tại
-            $expire_time = 30 * 24 * 60 * 60; // 30 ngày tính bằng giây
-
-            // Duyệt qua từng sản phẩm trong danh sách yêu thích
-            foreach ($_SESSION['favorites'] as $id => $item) {
-                if ($current_time - $item['timestamp'] > $expire_time) {
-                    // Nếu thời gian sản phẩm đã quá 30 ngày, xóa sản phẩm khỏi danh sách yêu thích
-                    unset($_SESSION['favorites'][$id]);
-                }
-            }
-        }
-    }
 }

@@ -1,38 +1,38 @@
 <?php include 'app/views/shares/header.php'; ?>
 <div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="text-primary">Danh Sách Sản Phẩm</h1>
-        <a href="/demo1/Product/add" class="btn btn-success">Thêm Sản Phẩm Mới</a>
-    </div>
+    <h1 class="text-center mb-4">Danh sách sản phẩm</h1>
+    <a href="/s4_php/product/add" class="btn btn-success mb-2">Thêm sản phẩm mới</a>
     <div class="row">
         <?php foreach ($products as $product): ?>
             <div class="col-md-4 mb-4">
-                <div class="card shadow-sm h-100">
+                <div class="card h-100">
+                    <?php if ($product->image): ?>
+                        <img src="/s4_php/public/images/<?php echo $product->image; ?>" 
+                            class="card-img-top img-fluid" 
+                            alt="product Image" 
+                            style="height: 200px; width: 100%; object-fit: contain;">
+                    <?php endif; ?>
                     <div class="card-body">
-                        <h5 class="card-title text-truncate">
-                            <a href="/demo1/Product/show/<?php echo $product->id; ?>" class="text-decoration-none text-dark">
-                                <?php echo htmlspecialchars($product->title, ENT_QUOTES, 'UTF-8'); ?>
+                        <h5 class="card-title">
+                            <a href="/s4_php/product/show/<?php echo $product->id; ?>" 
+                            class="text-decoration-none text-dark">
+                                <?php echo htmlspecialchars($product->name, ENT_QUOTES, 'UTF-8'); ?>
                             </a>
                         </h5>
-                        <?php if ($product->image): ?>
-                            <img src="/demo1/<?php echo $product->image; ?>" alt="Product Image" style="max-width: 50px;">
-                        <?php endif; ?>
-                        <p class="card-text text-muted small text-truncate">
-                            <?php echo htmlspecialchars($product->description, ENT_QUOTES, 'UTF-8'); ?>
-                        </p>
-                        
+                        <p class="card-text"><?php echo htmlspecialchars($product->description, ENT_QUOTES, 'UTF-8'); ?></p>
+                        <p class="fw-bold">Giá: <?php echo htmlspecialchars($product->price, ENT_QUOTES, 'UTF-8'); ?> VND</p>
+                        <p class="text-muted">Danh mục: <?php echo htmlspecialchars($product->category_name, ENT_QUOTES, 'UTF-8'); ?></p>
                         <div class="d-flex justify-content-between">
-                            <a href="/demo1/Product/edit/<?php echo $product->id; ?>" class="btn btn-warning btn-sm">Sửa</a>
-                            <a href="/demo1/Product/delete/<?php echo $product->id; ?>"
-                                class="btn btn-danger btn-sm"
-                                onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
-                                Xóa
-                            </a>
-                            <a href="/demo1/Product/addToFavorites/<?php echo $product->id; ?>" class="btn btn-primary btn-sm">Thích</a>
+                            <a href="/s4_php/product/edit/<?php echo $product->id; ?>" class="btn btn-warning btn-sm">Sửa</a>
+                            <a href="/s4_php/product/delete/<?php echo $product->id; ?>" 
+                            class="btn btn-danger btn-sm" 
+                            onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">Xóa</a>
+                            <a href="/s4_php/cart/addToCart/<?php echo $product->id; ?>" class="btn btn-primary btn-sm">Thêm vào giỏ hàng</a>
                         </div>
                     </div>
                 </div>
             </div>
+
         <?php endforeach; ?>
     </div>
 </div>

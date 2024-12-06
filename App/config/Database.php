@@ -1,14 +1,8 @@
 <?php
-
-namespace App\Config;
-
-use PDO;
-use PDOException;
-
 class Database
 {
     private $host = "localhost";
-    private $db_name = "hutechshop";
+    private $db_name = "my_store";
     private $username = "root";
     private $password = "";
     public $conn;

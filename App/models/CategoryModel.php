@@ -1,28 +1,18 @@
-<?php 
-namespace App\Models;
-use PDO;
-
-class CategoryModel{
-
+<?php
+class CategoryModel
+{
     private $conn;
-    private $table_name = "category";
+    private $table_name = "categories";
     public function __construct($db)
     {
-    $this->conn = $db;
+        $this->conn = $db;
     }
     public function getCategories()
     {
-    $query = "SELECT id, name FROM " . $this->table_name;
-    $stmt = $this->conn->prepare($query);
-    $stmt->execute();
-    $result = $stmt->fetchAll(PDO::FETCH_OBJ);
-    return $result;
+        $query = "SELECT id, name, description FROM " . $this->table_name;
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+        return $result;
     }
 }
-
-
-
-
-
-
-?>
