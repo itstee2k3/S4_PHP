@@ -6,11 +6,12 @@ class Database
     private $username = "root";
     private $password = "";
     public $conn;
+    private $socket = "/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock"; // Thêm socket nếu cần
     public function getConnection()
     {
         $this->conn = null;
         try {
-            $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
+            $this->conn = new PDO("mysql:host={$this->host};dbname={$this->db_name};unix_socket={$this->socket}", $this->username, $this->password);
             $this->conn->exec("set names utf8");
         } catch (PDOException $exception) {
             echo "Connection error: " . $exception->getMessage();

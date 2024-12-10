@@ -3,7 +3,7 @@ session_start();
 
 // Bật hiển thị lỗi
 ini_set('display_errors', 1);
-error_reporting(E_ALL);
+error_reporting(error_level: E_ALL);
 
 // require_once 'app/models/ProductModel.php';
 // require_once 'app/models/CartModel.php';
@@ -28,6 +28,7 @@ if (!file_exists('app/controllers/' . $controllerName . '.php')) {
 }
 
 require_once 'app/controllers/' . $controllerName . '.php';
+
 $controller = new $controllerName();
 
 if (!method_exists($controller, $action)) {

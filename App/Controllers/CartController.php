@@ -24,13 +24,20 @@ class CartController {
 
         $user_id = $_SESSION['user_id'] ?? null;
         if (!$user_id) {
-            echo "Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.";
-            return;
+            $_SESSION['message'] = "Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.";
+            $_SESSION['message_type'] = 'warning'; // hoặc 'danger', 'info', 'success'
+
+            header('Location:' . $_SERVER['HTTP_REFERER']);
+            exit;
         }
 
         $quantity = 1; // Số lượng mặc định
         if ($this->cartModel->addToCart(user_id: $user_id, product_id: $id, quantity: $quantity)) {
-            header('Location: /s4_php/cart');
+            $_SESSION['message'] = "Đã thêm sản phẩm vào giỏ hàng thành công.";
+            $_SESSION['message_type'] = 'success'; // hoặc 'danger', 'info', 'success'
+
+            header('Location:' . $_SERVER['HTTP_REFERER']);
+            exit;
         } else {
             echo "Đã xảy ra lỗi khi thêm sản phẩm vào giỏ hàng.";
         }
@@ -43,7 +50,8 @@ class CartController {
             // echo "Vui lòng đăng nhập để xem giỏ hàng.";
             $_SESSION['message'] = 'Vui lòng đăng nhập để xem giỏ hàng.';
             $_SESSION['message_type'] = 'warning'; // hoặc 'danger', 'info', 'success'
-            header('Location: /s4_php/account/login');
+            
+            header('Location:' . $_SERVER['HTTP_REFERER']);
             // include 'app/views/cart/cart.php';
             exit;
         }
@@ -168,9 +176,11 @@ class CartController {
             $result = $cartModel->updateCartQuantity($user_id, $product_id, $quantity);
     
             if ($result) {
-                $_SESSION['success'] = 'Cập nhật số lượng thành công!';
+                $_SESSION['message'] = 'Cập nhật số lượng thành công!';
+                $_SESSION['message_type'] = 'success';
             } else {
                 $_SESSION['error'] = 'Có lỗi xảy ra, vui lòng thử lại!';
+                $_SESSION['message_type'] = 'error';
             }
     
             // Quay lại trang giỏ hàng
@@ -191,7 +201,8 @@ class CartController {
         $result = $cartModel->removeFromCart($user_id, $product_id);
 
         if ($result) {
-            $_SESSION['success'] = 'Sản phẩm đã được xóa khỏi giỏ hàng.';
+            $_SESSION['message'] = 'Sản phẩm đã được xóa khỏi giỏ hàng.';
+            $_SESSION['message_type'] = 'warning';
         } else {
             $_SESSION['error'] = 'Có lỗi xảy ra khi xóa sản phẩm.';
         }

@@ -1,11 +1,4 @@
 <?php include 'app/views/shares/header.php'; ?>
-<?php if (isset($_SESSION['message'])): ?>
-    <div class="alert alert-<?php echo $_SESSION['message_type']; ?> alert-dismissible fade show" role="alert">
-        <?php echo $_SESSION['message']; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    <?php unset($_SESSION['message']); // Xóa thông báo sau khi hiển thị ?>
-<?php endif; ?>
 <section class="vh-100 gradient-custom">
     <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">

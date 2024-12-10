@@ -13,6 +13,30 @@
                             style="height: 200px; width: 100%; object-fit: contain;">
                     <?php endif; ?>
                     <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <!-- Nút yêu thích -->
+                            <!-- <a href="/s4_php/favorite/addToFavorites/<?php echo $product->id; ?>" 
+                               class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-heart"></i> Yêu thích
+                            </a> -->
+                            <?php 
+                                // Kiểm tra nếu sản phẩm đã có trong danh sách yêu thích
+                                $is_favorite = in_array($product->id, $favorite_product_ids); // $favorite_product_ids là mảng ID sản phẩm yêu thích
+                                if ($is_favorite):
+                            ?>
+                                <!-- Nút bỏ yêu thích (màu đỏ) -->
+                                <a href="/s4_php/favorite/removeFromFavorites/<?php echo $product->id; ?>" 
+                                   class="btn btn-danger btn-sm">
+                                    <i class="fas fa-heart"></i> Bỏ yêu thích
+                                </a>
+                            <?php else: ?>
+                                <!-- Nút yêu thích (màu mặc định) -->
+                                <a href="/s4_php/favorite/addToFavorites/<?php echo $product->id; ?>" 
+                                   class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-heart"></i> Yêu thích
+                                </a>
+                            <?php endif; ?>
+                        </div>
                         <h5 class="card-title">
                             <a href="/s4_php/product/show/<?php echo $product->id; ?>" 
                             class="text-decoration-none text-dark">
@@ -32,7 +56,6 @@
                     </div>
                 </div>
             </div>
-
         <?php endforeach; ?>
     </div>
 </div>

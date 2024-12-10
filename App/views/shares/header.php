@@ -34,6 +34,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/s4_php/cart/">Giỏ hàng</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/s4_php/favorite/">Sản phẩm yêu thích</a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item">
@@ -56,4 +59,19 @@
             </div>
         </div>
     </nav>
+    <?php if (isset($_SESSION['message']) || isset($_SESSION['success']) || isset($_SESSION['error'])): ?>
+        <div class="alert alert-<?php echo $_SESSION['message_type'] ?? ($_SESSION['success'] ? 'success' : 'danger'); ?> alert-dismissible fade show" role="alert">
+            <?php 
+            // Hiển thị thông báo
+            echo $_SESSION['message'] ?? $_SESSION['success'] ?? $_SESSION['error']; 
+            
+            // Xóa thông báo sau khi hiển thị
+            unset($_SESSION['message']);
+            unset($_SESSION['success']);
+            unset($_SESSION['error']);
+            ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
     <!-- <div class="container mt-4"></div> -->

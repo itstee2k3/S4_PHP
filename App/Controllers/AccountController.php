@@ -43,6 +43,7 @@ class AccountController
             if ($account) {
                 $errors['account'] = "Tai khoan nay da co nguoi dang ky!";
             }
+            
             if (count($errors) > 0) {
                 include_once 'app/views/account/register.php';
             } else {

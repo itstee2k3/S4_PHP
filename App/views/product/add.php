@@ -3,15 +3,7 @@
 <div class="container mt-5">
     <h1 class="text-center mb-4">Thêm sản phẩm mới</h1>
 
-    <?php if (!empty($errors)): ?>
-        <div class="alert alert-danger">
-            <ul>
-                <?php foreach ($errors as $error): ?>
-                    <li><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></li>
-                <?php endforeach; ?>
-            </ul>
-        </div>
-    <?php endif; ?>
+
 
     <form method="POST" action="/s4_php/product/save" enctype="multipart/form-data" class="p-4 shadow rounded bg-light" onsubmit="return validateForm();">
         <div class="mb-3">

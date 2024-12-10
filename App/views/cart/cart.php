@@ -1,17 +1,5 @@
 <?php include 'app/views/shares/header.php'; ?>
 
-<?php if (!empty($_SESSION['success'])): ?>
-    <div class="alert alert-success">
-        <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
-    </div>
-<?php endif; ?>
-
-<?php if (!empty($_SESSION['error'])): ?>
-    <div class="alert alert-danger">
-        <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
-    </div>
-<?php endif; ?>
-
 <div class="container my-5">
     <h1 class="text-center mb-4">Giỏ hàng của bạn</h1>
 

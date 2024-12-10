@@ -3,18 +3,33 @@
 require_once('app/config/database.php');
 require_once('app/models/ProductModel.php');
 require_once('app/models/CategoryModel.php');
+require_once('app/models/FavoriteModel.php');
+
 class productController
 {
     private $productModel;
+    private $favoriteModel;
     private $db;
     public function __construct()
     {
         $this->db = (new Database())->getConnection();
         $this->productModel = new productModel($this->db);
+        $this->favoriteModel = new favoriteModel($this->db);
     }
 
     public function index(): void
     {
+        $user_id = $_SESSION['user_id'] ?? null;
+
+        // Nếu người dùng đã đăng nhập, lấy danh sách yêu thích
+        $favorite_product_ids = [];
+        if ($user_id) {
+            $favorites = $this->favoriteModel->getUserFavorites($user_id);
+            $favorite_product_ids = array_map(function($favorite) {
+                return $favorite['id'];
+            }, $favorites);
+        }
+
         // echo 'This is the product index page'; // Debug message
         $products = $this->productModel->getproducts();
         include 'app/views/product/list.php';
@@ -68,24 +83,14 @@ class productController
             }
             // Chuyển hướng sau khi lưu
             if (empty($errors)) {
+                $_SESSION['message'] = 'Tạo mới thành công sản phẩm ' . $name;
+                $_SESSION['message_type'] = 'success'; // hoặc 'danger', 'info', 'success'
                 header('Location: /s4_php/product');
                 exit;
             } else {
                 $categories = (new CategoryModel($this->db))->getCategories();
                 include 'app/views/product/add.php';
             }
-            // if (is_array($product)) {
-            //     // $errors = $product;
-            //     if (isset($product['id_error'])) {
-            //         $errors = ['Không thể tạo ID cho sản phẩm mới.']; // Hoặc lỗi cụ thể về ID
-            //     } else {
-            //         $errors = $product; // Lỗi khác (ví dụ: không thể thêm sản phẩm)
-            //     }
-            //     $categories = (new CategoryModel($this->db))->getCategories();
-            //     include 'app/views/product/add.php';
-            // } else {
-            //     header('Location: /s4_php/product');
-            // }
         }
     }
 
@@ -137,7 +142,29 @@ class productController
 
     public function delete($id)
     {
+        // Lấy thông tin sản phẩm từ cơ sở dữ liệu
+        $product = $this->productModel->getProductById($id);
+
+        if (!$product) {
+            echo "Sản phẩm không tồn tại.";
+            return;
+        }
+
+        // Xóa ảnh nếu tồn tại
+        $imagePath = "public/images/" . $product->image;
+        if (!empty($product->image) && file_exists($imagePath)) {
+            if (unlink(filename: $imagePath)) {
+                $_SESSION['success'] = "Sản phẩm và ảnh đã được xóa thành công.";
+            } else {
+                $_SESSION['error'] = "Sản phẩm đã được xóa nhưng không thể xóa ảnh.";
+            }
+        } else {
+            $_SESSION['warning'] = "Sản phẩm đã xóa, nhưng không tìm thấy ảnh để xóa.";
+        }
+        
         if ($this->productModel->deleteproduct($id)) {
+            $_SESSION['message'] = 'Xóa sản phẩm thành công';
+            $_SESSION['message_type'] = 'success'; // hoặc 'danger', 'info', 'success'
             header('Location: /s4_php/product');
         } else {
             echo "Đã xảy ra lỗi khi xóa sản phẩm.";
