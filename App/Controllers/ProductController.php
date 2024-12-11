@@ -4,6 +4,7 @@ require_once('app/config/database.php');
 require_once('app/models/ProductModel.php');
 require_once('app/models/CategoryModel.php');
 require_once('app/models/FavoriteModel.php');
+require_once('app/controllers/AccountController.php');
 
 class productController
 {
@@ -19,6 +20,16 @@ class productController
 
     public function index(): void
     {
+        $accountController = new AccountController();
+
+        if (!isset($_SESSION['user_id'])) {
+            if (!$accountController->autoLogin()) {
+                echo "Vui lòng đăng nhập lại.";
+                header('Location: /s4_php/account/login');
+                exit;
+            }
+        }
+
         $user_id = $_SESSION['user_id'] ?? null;
 
         // Nếu người dùng đã đăng nhập, lấy danh sách yêu thích
@@ -47,6 +58,15 @@ class productController
 
     public function add()
     {
+        if (!in_array('Admin', $_SESSION['user_roles'])) {
+            // echo "Bạn không có quyền thực hiện chức năng này.";
+            $_SESSION['message'] = 'Bạn không có quyền thực hiện chức năng này.';
+            $_SESSION['message_type'] = 'danger'; // hoặc 'danger', 'info', 'success'
+
+            header('Location:' . $_SERVER['HTTP_REFERER']);
+            exit; // Dừng thực hiện
+        }
+
         $categories = (new CategoryModel($this->db))->getCategories();
         include_once 'app/views/product/add.php';
     }
@@ -97,6 +117,15 @@ class productController
 
     public function edit($id)
     {
+        if (!in_array('Admin', $_SESSION['user_roles'])) {
+            // echo "Bạn không có quyền thực hiện chức năng này.";
+            $_SESSION['message'] = 'Bạn không có quyền thực hiện chức năng này.';
+            $_SESSION['message_type'] = 'danger'; // hoặc 'danger', 'info', 'success'
+
+            header('Location:' . $_SERVER['HTTP_REFERER']);
+            exit; // Dừng thực hiện
+        }
+
         $product = $this->productModel->getproductById($id);
         $categories = (new CategoryModel($this->db))->getCategories();
         if ($product) {
@@ -106,7 +135,7 @@ class productController
         }
     }
     public function update()
-    {
+    {   
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $_POST['id'];
             $name = $_POST['name'];
@@ -142,6 +171,15 @@ class productController
 
     public function delete($id)
     {
+        if (!in_array('Admin', $_SESSION['user_roles'])) {
+            // echo "Bạn không có quyền thực hiện chức năng này.";
+            $_SESSION['message'] = 'Bạn không có quyền thực hiện chức năng này.';
+            $_SESSION['message_type'] = 'danger'; // hoặc 'danger', 'info', 'success'
+
+            header('Location:' . $_SERVER['HTTP_REFERER']);
+            exit; // Dừng thực hiện
+        }
+
         // Lấy thông tin sản phẩm từ cơ sở dữ liệu
         $product = $this->productModel->getProductById($id);
 

@@ -10,7 +10,7 @@ if ($db === null) {
 $favoriteModel = new FavoriteModel($db);
 
 // Xóa các sản phẩm yêu thích đã hết hạn
-// $favoriteModel->removeExpiredFavorites();
+$favoriteModel->removeExpiredFavorites();
 
 // echo "Expired favorites removed successfully.\n";
 ?>

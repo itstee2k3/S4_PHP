@@ -1,4 +1,6 @@
 <?php
+// ini_set('session.gc_maxlifetime', 60); // 1 phút
+session_set_cookie_params(0);     
 session_start();
 
 // Bật hiển thị lỗi
@@ -8,6 +10,14 @@ error_reporting(error_level: E_ALL);
 // require_once 'app/models/ProductModel.php';
 // require_once 'app/models/CartModel.php';
 require_once 'app/helpers/SessionHelper.php';
+
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 60)) {
+    session_unset();
+    session_destroy();
+    header("Location: /s4_php/account/logout");
+    exit;
+}
+$_SESSION['last_activity'] = time();
 
 // product/add
 $url = $_GET['url'] ?? '';
