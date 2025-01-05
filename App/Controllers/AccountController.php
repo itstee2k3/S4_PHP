@@ -106,8 +106,13 @@ class AccountController
                         setcookie('login_time', time(), time() + (1 * 60), '/', '', false, true);
                     }
 
-                    header('Location: /s4_php/product/');
-                    var_dump($_SESSION['user_roles']);
+                    if (in_array('Admin', haystack: $_SESSION['user_roles'])) {
+                        header('Location: /s4_php/admin/dashboard');
+                    } else {
+                        header('Location: /s4_php/product/');
+                    }
+                    //header('Location: /s4_php/product/');
+                    // var_dump($_SESSION['user_roles']);
 
                     exit;
                 } else {
@@ -151,4 +156,61 @@ class AccountController
     }
 
 
+    // Hiển thị form chỉnh sửa mật khẩu
+    public function editPassword($id)
+    {
+        $user = $this->accountModel->getUserById($id);
+        if ($user) {
+            include 'app/admin/views/user/edit_password.php';
+        } else {
+            echo "User not found.";
+        }
+    }
+
+    // Xử lý cập nhật mật khẩu
+    public function updatePassword()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = $_POST['id'] ?? '';
+            $password = $_POST['password'] ?? '';
+            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+
+            if ($this->accountModel->updatePassword($id, $hashedPassword)) {
+                header('Location: /s4_php/admin/users');
+                exit;
+            } else {
+                echo "Error updating password.";
+            }
+        }
+    }
+
+    // Hiển thị form thiết lập vai trò
+    public function setRole($id)
+    {
+        $user = $this->accountModel->getUserById($id);
+        $roles = $this->accountModel->getAllRoles(); // Lấy danh sách vai trò
+        $user_roles = $this->accountModel->getRolesByUserId($id); // Lấy vai trò của người dùng
+
+        if ($user) {
+            include 'app/admin/views/user/set_role.php';
+        } else {
+            echo "User not found.";
+        }
+    }
+
+    // Xử lý cập nhật vai trò
+    public function updateRole()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $userId = $_POST['user_id'] ?? '';
+            $roleId = $_POST['role_id'] ?? '';
+
+            if ($this->accountModel->updateUserRole($userId, $roleId)) {
+                header('Location: /s4_php/admin/users');
+                exit;
+            } else {
+                echo "Error updating role.";
+            }
+        }
+    }
 }

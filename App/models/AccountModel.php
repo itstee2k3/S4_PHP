@@ -16,6 +16,7 @@ class AccountModel
         $result = $stmt->fetch(PDO::FETCH_OBJ);
         return $result;
     }
+
     function save($username, $fullname, $password, $role_id = 1)
     {
         try {
@@ -62,19 +63,6 @@ class AccountModel
         }
     }
     
-       /**
-     * Gán role cho user.
-     */
-    // private function assignRoleToUser($user_id, $role_id)
-    // {
-    //     $role_query = "INSERT INTO user_roles (user_id, role_id) VALUES (:user_id, :role_id)";
-    //     $role_stmt = $this->conn->prepare($role_query);
-
-    //     $role_stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-    //     $role_stmt->bindParam(':role_id', $role_id, PDO::PARAM_INT);
-
-    //     return $role_stmt->execute();
-    // }
 
     public function getRolesByUserId($user_id)
     {
@@ -88,19 +76,59 @@ class AccountModel
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
-    /**
-     * Kiểm tra xem user có vai trò cụ thể hay không.
-     */
-    // public function hasRole($user_id, $role_name)
-    // {
-    //     $query = "SELECT 1 
-    //               FROM user_roles ur 
-    //               JOIN roles r ON ur.role_id = r.id 
-    //               WHERE ur.user_id = :user_id AND r.role_name = :role_name";
-    //     $stmt = $this->conn->prepare($query);
-    //     $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-    //     $stmt->bindParam(':role_name', $role_name, PDO::PARAM_STR);
-    //     $stmt->execute();
-    //     return (bool) $stmt->fetchColumn();
-    // }
+    public function getAllUsers()
+    {
+        try {
+            $query = "SELECT * FROM " . $this->table_name;
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
+        } catch (Exception $e) {
+            error_log("Error fetching all users: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function updatePassword($id, $password)
+    {
+        $query = "UPDATE accounts SET password = :password WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':password', $password, PDO::PARAM_STR);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
+
+    public function getAllRoles()
+    {
+        $query = "SELECT * FROM roles";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function updateUserRole($userId, $roleId)
+    {
+        $query = "UPDATE user_roles SET role_id = :role_id WHERE user_id = :user_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':role_id', $roleId, PDO::PARAM_INT);
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
+
+    public function getUserById($id)
+    {
+        $query = "
+            SELECT a.id, a.username, a.fullname, a.password, r.role_name
+            FROM accounts a
+            JOIN user_roles ur ON a.id = ur.user_id
+            JOIN roles r ON ur.role_id = r.id
+            WHERE a.id = :id
+        ";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        // Lấy kết quả và trả về dữ liệu
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }    
 }

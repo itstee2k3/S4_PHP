@@ -94,5 +94,15 @@ class FavoriteModel {
         }
     }
     
+    // Phương thức đếm số lượng yêu thích của người dùng
+    public function getFavoriteCount($user_id) {
+        $query = "SELECT COUNT(*) AS favoriteCount FROM favourites WHERE user_id = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        return $row['favoriteCount']; // Trả về số lượng yêu thích
+    }
 }
 ?>

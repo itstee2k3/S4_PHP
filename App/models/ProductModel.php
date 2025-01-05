@@ -107,7 +107,13 @@ class productModel
         return false;
     }
 
+    public function getCategory($category_id)
+    {
+        $query = "SELECT name FROM categories WHERE id = :category_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':category_id', $category_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchColumn(); // Lấy tên category
+    }
 
-
-    
 }

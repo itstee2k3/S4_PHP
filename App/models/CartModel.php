@@ -115,4 +115,14 @@ class CartModel
             return false;
         }
     }
+    // Lấy số lượng sản phẩm trong giỏ hàng
+    public function getCartCount($user_id) {
+        $query = "SELECT SUM(quantity) AS cartCount FROM carts WHERE user_id = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        return $row['cartCount']; // Trả về tổng số lượng sản phẩm trong giỏ hàng
+    }
 }

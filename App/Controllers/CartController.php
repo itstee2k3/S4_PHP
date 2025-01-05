@@ -16,32 +16,50 @@ class CartController {
 
     // Thêm sản phẩm vào giỏ hàng
     public function addToCart($id): void {
+        // Lấy thông tin sản phẩm từ ID
         $product = $this->productModel->getproductById($id);
         if (!$product) {
             echo "Không tìm thấy sản phẩm.";
             return;
         }
-
+    
+        // Kiểm tra nếu người dùng đã đăng nhập
         $user_id = $_SESSION['user_id'] ?? null;
         if (!$user_id) {
             $_SESSION['message'] = "Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.";
             $_SESSION['message_type'] = 'warning'; // hoặc 'danger', 'info', 'success'
-
+    
             header('Location:' . $_SERVER['HTTP_REFERER']);
             exit;
         }
-
-        $quantity = 1; // Số lượng mặc định
+    
+        // Lấy số lượng sản phẩm từ input
+        $quantity = $_POST['quantity'] ?? 1; // Nếu không có số lượng, mặc định là 1
+    
+        // Kiểm tra nếu số lượng hợp lệ (>= 1)
+        if ($quantity < 1) {
+            $_SESSION['message'] = "Số lượng không hợp lệ.";
+            $_SESSION['message_type'] = 'warning';
+            header('Location:' . $_SERVER['HTTP_REFERER']);
+            exit;
+        }
+    
+        // Thêm sản phẩm vào giỏ hàng
         if ($this->cartModel->addToCart(user_id: $user_id, product_id: $id, quantity: $quantity)) {
             $_SESSION['message'] = "Đã thêm sản phẩm vào giỏ hàng thành công.";
             $_SESSION['message_type'] = 'success'; // hoặc 'danger', 'info', 'success'
-
+    
             header('Location:' . $_SERVER['HTTP_REFERER']);
             exit;
         } else {
-            echo "Đã xảy ra lỗi khi thêm sản phẩm vào giỏ hàng.";
+            $_SESSION['message'] = "Đã xảy ra lỗi khi thêm sản phẩm vào giỏ hàng.";
+            $_SESSION['message_type'] = 'danger';
+    
+            header('Location:' . $_SERVER['HTTP_REFERER']);
+            exit;
         }
     }
+    
 
     // Hiển thị giỏ hàng
     public function index() {
@@ -167,7 +185,7 @@ class CartController {
             // Kiểm tra số lượng hợp lệ
             if ($quantity <= 0) {
                 $_SESSION['error'] = 'Số lượng không hợp lệ!';
-                header("Location: /s4_php/cart");
+                header("Location: /s4_php/cart/");
                 exit;
             }
     
@@ -184,10 +202,9 @@ class CartController {
             }
     
             // Quay lại trang giỏ hàng
-            // header("Location: /s4_php/cart");
+            header("Location: /s4_php/cart/");
             // exit;
-            $cart = $cartModel->getCartItems($user_id); // Lấy lại giỏ hàng mới
-            include 'app/views/cart/cart.php'; // Gửi lại view với dữ liệu mới
+
             exit;
         }
     }
@@ -208,12 +225,26 @@ class CartController {
         }
 
         // Quay lại trang giỏ hàng
-        header("Location: /s4_php/cart");
+        header("Location: /s4_php/cart/");
         exit;
     }
 
     public function orderConfirmation() {
         include 'app/views/cart/orderConfirmation.php';
     }
+
+    public function getCartCount() {
+        $user_id = $_SESSION['user_id'] ?? null;
+        if (!$user_id) {
+            return 0; // Nếu người dùng chưa đăng nhập, trả về 0
+        }
+    
+        // Lấy số lượng sản phẩm trong giỏ hàng
+        $cartCount = $this->cartModel->getCartCount($user_id);
+    
+        return $cartCount;
+    }
+    
+    
 }
 ?>

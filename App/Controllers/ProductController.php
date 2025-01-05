@@ -20,15 +20,15 @@ class productController
 
     public function index(): void
     {
-        $accountController = new AccountController();
+        // $accountController = new AccountController();
 
-        if (!isset($_SESSION['user_id'])) {
-            if (!$accountController->autoLogin()) {
-                echo "Vui lòng đăng nhập lại.";
-                header('Location: /s4_php/account/login');
-                exit;
-            }
-        }
+        // if (!isset($_SESSION['user_id'])) {
+        //     if (!$accountController->autoLogin()) {
+        //         echo "Vui lòng đăng nhập lại.";
+        //         header('Location: /s4_php/account/login');
+        //         exit;
+        //     }
+        // }
 
         $user_id = $_SESSION['user_id'] ?? null;
 
@@ -46,11 +46,48 @@ class productController
         include 'app/views/product/list.php';
     }
 
+    public function shop(): void
+    {
+
+        $user_id = $_SESSION['user_id'] ?? null;
+
+        // Nếu người dùng đã đăng nhập, lấy danh sách yêu thích
+        $favorite_product_ids = [];
+        if ($user_id) {
+            $favorites = $this->favoriteModel->getUserFavorites($user_id);
+            $favorite_product_ids = array_map(function($favorite) {
+                return $favorite['id'];
+            }, $favorites);
+        }
+
+        // echo 'This is the product index page'; // Debug message
+        $products = $this->productModel->getproducts();
+        include 'app/views/product/shop.php';
+    }
+
     public function show($id)
     {
         $product = $this->productModel->getproductById($id);
+
         if ($product) {
-            include 'app/views/product/show.php';
+
+            $user_id = $_SESSION['user_id'] ?? null;
+
+            // Nếu người dùng đã đăng nhập, lấy danh sách yêu thích
+            $favorite_product_ids = [];
+            if ($user_id) {
+                $favorites = $this->favoriteModel->getUserFavorites($user_id);
+                $favorite_product_ids = array_map(function($favorite) {
+                    return $favorite['id'];
+                }, $favorites);
+            }
+
+            // echo 'This is the product index page'; // Debug message
+            $products = $this->productModel->getproducts();
+            include 'app/views/shares/header.php';
+            include 'app/views/product/detail.php';
+            include 'app/views/shares/footer.php'; 
+
         } else {
             echo "Không thấy sản phẩm.";
         }
@@ -58,7 +95,7 @@ class productController
 
     public function add()
     {
-        if (!in_array('Admin', $_SESSION['user_roles'])) {
+        if (!isset($_SESSION['user_roles']) || !is_array($_SESSION['user_roles']) || !in_array('Admin', $_SESSION['user_roles'])) {
             // echo "Bạn không có quyền thực hiện chức năng này.";
             $_SESSION['message'] = 'Bạn không có quyền thực hiện chức năng này.';
             $_SESSION['message_type'] = 'danger'; // hoặc 'danger', 'info', 'success'
@@ -68,7 +105,7 @@ class productController
         }
 
         $categories = (new CategoryModel($this->db))->getCategories();
-        include_once 'app/views/product/add.php';
+        include_once 'app/admin/views/product/add.php';
     }
 
     public function save()
@@ -84,7 +121,7 @@ class productController
             if (isset($product['error'])) {
                 $errors[] = $product['error']; // Nếu có lỗi khi thêm sản phẩm
                 $categories = (new CategoryModel($this->db))->getCategories();
-                include 'app/views/product/add.php';
+                include 'app/admin/views/product/add.php';
                 return;
             } else {
                 $productId = $product['id'];
@@ -105,11 +142,11 @@ class productController
             if (empty($errors)) {
                 $_SESSION['message'] = 'Tạo mới thành công sản phẩm ' . $name;
                 $_SESSION['message_type'] = 'success'; // hoặc 'danger', 'info', 'success'
-                header('Location: /s4_php/product');
+                header('Location: /s4_php/admin/products');
                 exit;
             } else {
                 $categories = (new CategoryModel($this->db))->getCategories();
-                include 'app/views/product/add.php';
+                include 'app/admin/views/product/add.php';
             }
         }
     }
@@ -129,7 +166,7 @@ class productController
         $product = $this->productModel->getproductById($id);
         $categories = (new CategoryModel($this->db))->getCategories();
         if ($product) {
-            include 'app/views/product/edit.php';
+            include 'app/admin/views/product/edit.php';
         } else {
             echo "Không thấy sản phẩm.";
         }
@@ -162,7 +199,7 @@ class productController
                 $image
             );
             if ($edit) {
-                header('Location: /s4_php/product');
+                header('Location: /s4_php/admin/products');
             } else {
                 echo "Đã xảy ra lỗi khi lưu sản phẩm.";
             }
@@ -203,7 +240,7 @@ class productController
         if ($this->productModel->deleteproduct($id)) {
             $_SESSION['message'] = 'Xóa sản phẩm thành công';
             $_SESSION['message_type'] = 'success'; // hoặc 'danger', 'info', 'success'
-            header('Location: /s4_php/product');
+            header('Location: /s4_php/admin/products');
         } else {
             echo "Đã xảy ra lỗi khi xóa sản phẩm.";
         }
@@ -231,10 +268,19 @@ class productController
             $filename = basename($file["name"]);
         }
 
+        
         // $filename = basename($file["name"]);
         $target_file = $target_dir . $filename;
         $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
+        if (!is_writable($target_dir)) {
+            throw new Exception("Thư mục $target_dir không thể ghi. Kiểm tra quyền.");
+        }
+        
+        if (!is_writable(dirname($target_file))) {
+            throw new Exception("Thư mục đích không thể ghi: " . dirname($target_file));
+        }
+        
         // Kiểm tra xem file có phải là hình ảnh không
         $check = getimagesize($file["tmp_name"]);
         var_dump($file["tmp_name"]);
@@ -249,7 +295,7 @@ class productController
         }
 
         // Chỉ cho phép một số định dạng hình ảnh nhất định
-        if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif") {
+        if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" && $imageFileType != "avif" && $imageFileType != "webp") {
             throw new Exception("Chỉ cho phép các định dạng JPG, JPEG, PNG và GIF.");
         }
         var_dump($file["tmp_name"]);

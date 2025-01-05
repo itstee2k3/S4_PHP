@@ -1,54 +1,75 @@
 <?php include 'app/views/shares/header.php'; ?>
 
-<section class="vh-100 gradient-custom">
-    <div class="container py-5 h-100">
-        <div class="row d-flex justify-content-center align-items-center h-100">
-            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-                <div class="card bg-dark text-white" style="border-radius: 1rem;">
-                    <div class="card-body p-5 text-center">
-                        <form action="/s4_php/account/save" method="post">
-                            <h2 class="fw-bold mb-4 text-uppercase">Register</h2>
+<div class="">
+    <!-- Outer Row -->
+    <div class="row justify-content-center">
 
-                            <!-- Hiển thị lỗi -->
-                            <?php if (isset($errors) && !empty($errors)): ?>
-                                <div class="alert alert-danger">
-                                    <ul class="mb-0">
-                                        <?php foreach ($errors as $err): ?>
-                                            <li><?php echo htmlspecialchars($err, ENT_QUOTES, 'UTF-8'); ?></li>
-                                        <?php endforeach; ?>
-                                    </ul>
+        <div class="col-xl-10 col-lg-12 col-md-9">
+
+            <div class="card o-hidden border shadow-lg my-5" style="overflow: hidden;">
+                <div class="card-body p-0">
+                    <!-- Nested Row within Card Body -->
+                    <div class="row">
+                        <div class="col-lg-6 d-none d-lg-block bg-login-image">
+                            <img src="../public/user/img/login.jpeg" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="p-4">
+                                <div class="text-center">
+                                    <h1 class="h4 text-gray-900 mb-4">Welcome!</h1>
                                 </div>
-                            <?php endif; ?>
+                                <form class="user" action="/s4_php/account/save" method="post">
+                                        <!-- Hiển thị lỗi -->
+                                        <?php if (isset($errors) && !empty($errors)): ?>
+                                            <div class="alert alert-danger">
+                                                <ul class="mb-0">
+                                                    <?php foreach ($errors as $err): ?>
+                                                        <li><?php echo htmlspecialchars($err, ENT_QUOTES, 'UTF-8'); ?></li>
+                                                    <?php endforeach; ?>
+                                                </ul>
+                                            </div>
+                                        <?php endif; ?>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control form-control-user border"
+                                            id="username"
+                                            placeholder="Username" name="username" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control form-control-user border"
+                                            id="fullname"
+                                            placeholder="Fullname" name="fullname" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="password" class="form-control form-control-user border"
+                                            name="password" id="password" placeholder="Password" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="password" class="form-control form-control-user border"
+                                            name="confirmpassword" id="confirmpassword" placeholder="Confirm Password" required>
+                                    </div>
 
-                            <div class="form-outline form-white mb-4">
-                                <label class="form-label" for="username">Username</label>
-                                <input type="text" id="username" name="username" class="form-control form-control-lg" required />
+                                    <button class="btn btn-primary btn-user btn-block border" type="submit">Register</button>
+
+                                    <hr>
+                                    <a href="#" class="btn btn-google btn-user btn-block">
+                                        <i class="fab fa-google fa-fw"></i> Login with Google
+                                    </a>
+                                </form>
+                                <hr>
+                                <div class="text-center">
+                                    <a class="small" href="#">Forgot Password?</a>
+                                </div>
+                                <div class="text-center">
                             </div>
-
-                            <div class="form-outline form-white mb-4">
-                                <label class="form-label" for="fullname">Full Name</label>
-                                <input type="text" id="fullname" name="fullname" class="form-control form-control-lg" required />
-                            </div>
-
-                            <div class="form-outline form-white mb-4">
-                                <label class="form-label" for="password">Password</label>
-                                <input type="password" id="password" name="password" class="form-control form-control-lg" required />
-                            </div>
-
-                            <div class="form-outline form-white mb-4">
-                                <label class="form-label" for="confirmpassword">Confirm Password</label>
-                                <input type="password" id="confirmpassword" name="confirmpassword" class="form-control form-control-lg" required />
-                            </div>
-
-                            <button type="submit" class="btn btn-outline-light btn-lg px-5">Register</button>
-
-                            <p class="mt-3 mb-0">Already have an account? <a href="/s4_php/account/login" class="text-white-50 fw-bold">Login</a></p>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
+
         </div>
+
     </div>
-</section>
+
+</div>
 
 <?php include 'app/views/shares/footer.php'; ?>

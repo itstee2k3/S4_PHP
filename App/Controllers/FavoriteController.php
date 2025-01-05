@@ -80,6 +80,21 @@ class FavoriteController {
             include 'app/views/favorite/list.php';
         }
     }
+
+    public function getFavoriteCount() {
+        $user_id = $_SESSION['user_id'] ?? null;
+        if (!$user_id) {
+            return 0; // Nếu người dùng chưa đăng nhập, trả về 0
+        }
+    
+        // Lấy số lượng yêu thích từ database
+        $favoriteCount = $this->favoriteModel->getFavoriteCount($user_id);
+
+        // include 'app/views/shares/header.php';
+
+        return $favoriteCount;
+    }
+    
     
 }
 ?>
